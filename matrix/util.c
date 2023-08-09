@@ -40,6 +40,7 @@ char** parse_matrix(FILE* input_stream, int* k, int* n) {
 
 void print_matrix(int k, int n, char** mat) {
     printf("--------\n");
+    printf("k = %d, n = %d\n", k, n);
     for (uint64_t row = 0; row < k; row++) {
         for (uint64_t col = 0; col < n; col++) {
             printf("%d ", mat[row][col]);

@@ -5,19 +5,18 @@
 
 int main() {
     int k, n;
-    FILE* id_4_4 = fopen("id_4_4", "r");
-    char** id_4_4_m = parse_matrix(id_4_4, &k, &n);
 
-    FILE* perm_4_4 = fopen("perm_4_4", "r");
+    FILE* perm_4_4 = fopen("matrices/perm_4_4", "r");
     char** perm_4_4_m = parse_matrix(perm_4_4, &k, &n);
+    char** id_4 = id_matrix(4);
 
-    print_matrix(k, n, id_4_4_m);
-    print_matrix(k, n, perm_4_4_m);
-    char** new = transpose(4, 6, perm_4_4_m);
-    print_matrix(n, k, new);
+    print_matrix(4, 4, perm_4_4_m);
+    print_matrix(4, 4, id_4);
 
-    dealloc_matrix(k, n, new);
-    dealloc_matrix(k, n, perm_4_4_m);
+    char** mult = multiply(4, 4, perm_4_4_m, 4, 4, perm_4_4_m);
+    print_matrix(4, 4, mult);
+
+    dealloc_matrix(4, 4, id_4);
     return 0;
 }
 

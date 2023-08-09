@@ -8,3 +8,7 @@ char** multiply(uint64_t k1, uint64_t n1, char** mat1,
 
 char** transpose(uint64_t k, uint64_t n, char** mat);
 
+char dot_product(uint64_t k, char* first, char* second);
+
+char** id_matrix(uint64_t n);
+
