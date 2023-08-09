@@ -1,19 +1,21 @@
 #include <stdio.h>
 
-#define DEBUG
-
 #include "matrix/util.h"
+#include "matrix/math.h"
 
 int main() {
-    printf("Enter matrix dimensions (rows, columns): ");
     int k, n;
-    scanf(" %d %d%*c", &k, &n);
+    FILE* id_4_4 = fopen("id_4_4", "r");
+    char** id_4_4_m = parse_matrix(id_4_4, &k, &n);
 
-    printf("Matrix dimensions: %d %d\n", k, n);
-    char** matrix = parse_matrix(k, n);
-    print_matrix(k, n, matrix);
+    FILE* perm_4_4 = fopen("perm_4_4", "r");
+    char** perm_4_4_m = parse_matrix(perm_4_4, &k, &n);
 
-    dealloc_matrix(k, n, matrix);
+    print_matrix(k, n, id_4_4_m);
+    print_matrix(k, n, perm_4_4_m);
+
+    dealloc_matrix(k, n, id_4_4_m);
+    dealloc_matrix(k, n, perm_4_4_m);
     return 0;
 }
 

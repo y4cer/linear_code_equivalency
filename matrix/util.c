@@ -1,12 +1,29 @@
 #include "util.h"
 
-char** parse_matrix(uint64_t k, uint64_t n) {
-    printf("Enter the matrix (row by row): \n");
-    char** matrix = (char**) malloc(k * sizeof(char*));
-    for (uint64_t row = 0; row < k; row++) {
-        matrix[row] = (char*) malloc(n * sizeof(char));
-        char* buf = (char*) malloc(n * sizeof(char));
-        fgets(buf, BUFF_SIZE, stdin);
+#undef DEBUG
+
+char** parse_matrix(FILE* input_stream, int* k, int* n) {
+    char buffer [BUFF_SIZE];
+
+    if (input_stream == stdin) {
+        printf("Enter matrix dimensions (rows, columns): ");
+        fgets(buffer, BUFF_SIZE, input_stream);
+
+        sscanf(buffer, " %d %d%*c", k, n);
+
+        printf("Matrix dimensions: %d %d\n", *k, *n);
+        printf("Enter the matrix (row by row): \n");
+    } else {
+        fgets(buffer, BUFF_SIZE, input_stream);
+        sscanf(buffer, " %d %d%*c", k, n);
+    }
+
+    char** matrix = (char**) malloc(*k * sizeof(char*));
+
+    for (uint64_t row = 0; row < *k; row++) {
+        matrix[row] = (char*) malloc(*n * sizeof(char));
+        char* buf = (char*) malloc(*n * sizeof(char));
+        fgets(buf, BUFF_SIZE, input_stream);
 #ifdef DEBUG
         printf("---> %s", buf);
 #endif
