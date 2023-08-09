@@ -14,6 +14,6 @@ char** parse_matrix(FILE* input_stream, int* k, int* n);
 
 void print_matrix(int k, int n, char** mat);
 
-
+char** alloc_matrix(uint64_t k, uint64_t n);
 void dealloc_matrix(int k, int n, char** mat);
 

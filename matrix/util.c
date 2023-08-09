@@ -18,10 +18,9 @@ char** parse_matrix(FILE* input_stream, int* k, int* n) {
         sscanf(buffer, " %d %d%*c", k, n);
     }
 
-    char** matrix = (char**) malloc(*k * sizeof(char*));
+    char** matrix = alloc_matrix(*k, *n);
 
     for (uint64_t row = 0; row < *k; row++) {
-        matrix[row] = (char*) malloc(*n * sizeof(char));
         char* buf = (char*) malloc(*n * sizeof(char));
         fgets(buf, BUFF_SIZE, input_stream);
 #ifdef DEBUG
@@ -48,6 +47,14 @@ void print_matrix(int k, int n, char** mat) {
         printf("\n");
     }
     printf("--------\n");
+}
+
+char** alloc_matrix(uint64_t k, uint64_t n) {
+    char** matrix = (char**) malloc(k * sizeof(char*));
+    for (uint64_t row = 0; row < k; row++) {
+        matrix[row] = (char*) malloc(n * sizeof(char));
+    }
+    return matrix;
 }
 
 void dealloc_matrix(int k, int n, char** mat) {
