@@ -13,8 +13,10 @@ int main() {
 
     print_matrix(k, n, id_4_4_m);
     print_matrix(k, n, perm_4_4_m);
+    char** new = transpose(4, 6, perm_4_4_m);
+    print_matrix(n, k, new);
 
-    dealloc_matrix(k, n, id_4_4_m);
+    dealloc_matrix(k, n, new);
     dealloc_matrix(k, n, perm_4_4_m);
     return 0;
 }

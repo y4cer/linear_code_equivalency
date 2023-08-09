@@ -6,3 +6,5 @@
 char** multiply(uint64_t k1, uint64_t n1, char** mat1,
                 uint64_t k2, uint64_t n2, char** mat2);
 
+char** transpose(uint64_t k, uint64_t n, char** mat);
+
