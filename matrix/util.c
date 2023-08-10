@@ -53,7 +53,8 @@ void print_matrix(uint64_t k, uint64_t n, char** mat) {
 char** alloc_matrix(uint64_t k, uint64_t n) {
     char** matrix = (char**) malloc(k * sizeof(char*));
     for (uint64_t row = 0; row < k; row++) {
-        matrix[row] = (char*) malloc(n * sizeof(char));
+        /* matrix[row] = (char*) malloc(n * sizeof(char)); */
+        matrix[row] = (char*) calloc(n, sizeof(char));
     }
     return matrix;
 }
