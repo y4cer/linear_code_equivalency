@@ -4,19 +4,30 @@
 #include "matrix/math.h"
 
 int main() {
-    int k, n;
+    /* FILE* m1_f = fopen("matrices/m1", "r"); */
+    /* FILE* m2_f = fopen("matrices/m2", "r"); */
 
-    FILE* G_4_6 = fopen("matrices/G_4_6", "r");
-    char** G_4_6_m = parse_matrix(G_4_6, &k, &n);
+    /* matrix* m1 = parse_matrix(m1_f); */
+    /* matrix* m2 = parse_matrix(m2_f); */
 
-    print_matrix(k, n, G_4_6_m);
+    /* print_matrix(m1); */
+    /* print_matrix(m2); */
 
-    char** H = alloc_matrix(n - k, n);
-    build_check_matrix(k, n, G_4_6_m, H);
-    print_matrix(n - k, n, H);
+    /* matrix* res = alloc_matrix(m1->k, m2->n); */
+    /* matrix* m2_T = alloc_matrix(m2->n, m2->k); */
+    /* transpose(m2, m2_T); */
+    /* multiply(m1, m2_T, res); */
 
-    dealloc_matrix(n - k, n, H);
-    dealloc_matrix(k, n, G_4_6_m);
+    FILE* G_f = fopen("matrices/G_4_6", "r");
+    matrix* G = parse_matrix(G_f);
+    matrix* H = alloc_matrix(G->k, G->n);
+    build_check_matrix(G, H);
+    print_matrix(H);
+    matrix* H_T = alloc_matrix(H->n, H->k);
+    matrix* res = alloc_matrix(H->k, H_T->n);
+    multiply(G, H_T, res);
+
+    print_matrix(res);
     return 0;
 }
 

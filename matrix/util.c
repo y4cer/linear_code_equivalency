@@ -3,72 +3,77 @@
 
 #undef DEBUG
 
-char** parse_matrix(FILE* input_stream, int* k, int* n) {
+matrix* parse_matrix(FILE* input_stream) {
+
+    matrix* result = (matrix*) malloc(sizeof(matrix));
     char buffer [BUFF_SIZE];
 
     if (input_stream == stdin) {
         printf("Enter matrix dimensions (rows, columns): ");
         fgets(buffer, BUFF_SIZE, input_stream);
 
-        sscanf(buffer, " %d %d%*c", k, n);
+        sscanf(buffer, " %lu %lu%*c", &result->k, &result->n);
 
-        printf("Matrix dimensions: %d %d\n", *k, *n);
+        printf("Matrix dimensions: %lu %lu\n", result->k, result->n);
         printf("Enter the matrix (row by row): \n");
     } else {
         fgets(buffer, BUFF_SIZE, input_stream);
-        sscanf(buffer, " %d %d%*c", k, n);
+        sscanf(buffer, " %lu %lu%*c", &result->k, &result->n);
     }
 
-    char** matrix = alloc_matrix(*k, *n);
+    result->mat = (char**) malloc(result->k * sizeof(char*));
 
-    for (uint64_t row = 0; row < *k; row++) {
-        char* buf = (char*) malloc(*n * sizeof(char));
+    for (uint64_t row = 0; row < result->k; row++) {
+        result->mat[row] = (char*) malloc(result->n * sizeof(char));
+        char* buf = (char*) malloc(result->n * sizeof(char));
         fgets(buf, BUFF_SIZE, input_stream);
-#ifdef DEBUG
-        printf("---> %s", buf);
-#endif
         char* token = strtok(buf, " ");
         uint64_t col = 0;
         while (token) {
-            matrix[row][col] = atoi(token);
+            result->mat[row][col] = atoi(token);
             col++;
             token = strtok(NULL, " ");
         }
     }
-    return matrix;
+    return result;
 }
 
-void print_matrix(uint64_t k, uint64_t n, char** mat) {
+void print_matrix(matrix* mat) {
     printf("--------\n");
-    printf("k = %lu, n = %lu\n", k, n);
-    for (uint64_t row = 0; row < k; row++) {
-        for (uint64_t col = 0; col < n; col++) {
-            printf("%d ", mat[row][col]);
+    printf("k = %lu, n = %lu\n", mat->k, mat->n);
+    for (uint64_t row = 0; row < mat->k; row++) {
+        for (uint64_t col = 0; col < mat->n; col++) {
+            printf("%d ", mat->mat[row][col]);
         }
         printf("\n");
     }
     printf("--------\n");
 }
 
-char** alloc_matrix(uint64_t k, uint64_t n) {
-    char** matrix = (char**) malloc(k * sizeof(char*));
+matrix* alloc_matrix(uint64_t k, uint64_t n) {
+    matrix* result = malloc(sizeof(matrix));
+    result->mat = (char**) malloc(k * sizeof(char*));
+    result->n = n;
+    result->k = k;
     for (uint64_t row = 0; row < k; row++) {
-        /* matrix[row] = (char*) malloc(n * sizeof(char)); */
-        matrix[row] = (char*) calloc(n, sizeof(char));
+        result->mat[row] = (char*) calloc(n, sizeof(char));
     }
-    return matrix;
+    return result;
 }
 
-void dealloc_matrix(uint64_t k, uint64_t n, char** mat) {
-    for (uint64_t row = 0; row < k; row++) {
-        free(mat[row]);
+void dealloc_matrix(matrix* mat) {
+    for (uint64_t row = 0; row < mat->k; row++) {
+        free(mat->mat[row]);
     }
+    free(mat->mat);
     free(mat);
 }
 
-void copy_matrix(uint64_t k, uint64_t n, char** src, char** dest) {
-    for (uint64_t row = 0; row < k; row++) {
-        memcpy(dest[row], src[row], n);
+void copy_matrix(matrix* src, matrix* dest) {
+    dest->k = src->k;
+    dest->n = src->n;
+    for (uint64_t row = 0; row < src->k; row++) {
+        memcpy(dest->mat[row], src->mat[row], src->n);
     }
 }
 

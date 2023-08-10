@@ -3,19 +3,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+#pragma once
+
 #define BUFF_SIZE 1024
 
-/**
-  * Parses user input and stores it in matix form.
-  * k rows, n columns
-  */
-char** parse_matrix(FILE* input_stream, int* k, int* n);
+typedef struct {
+    uint64_t k;
+    uint64_t n;
+    char** mat;
+} matrix;
 
-void print_matrix(uint64_t k, uint64_t n, char** mat);
+matrix* parse_matrix(FILE* input_stream);
 
-char** alloc_matrix(uint64_t k, uint64_t n);
+void print_matrix(matrix* mat);
 
-void dealloc_matrix(uint64_t k, uint64_t n, char** mat);
+matrix* alloc_matrix(uint64_t k, uint64_t n);
 
-void copy_matrix(uint64_t k, uint64_t n, char** src, char** dest);
+void dealloc_matrix(matrix* matrix);
+
+void copy_matrix(matrix* src, matrix* dest);
 

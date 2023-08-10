@@ -1,10 +1,11 @@
 #include "math.h"
-#include "util.h"
 
-void transpose(uint64_t k, uint64_t n, char** mat, char** output_mat) {
-    for (int64_t row = n - 1; row >= 0; row--) {
-        for (uint64_t col = 0; col < k; col++) {
-            output_mat[n - row - 1][col] = mat[col][row];
+void transpose(matrix* input_mat, matrix* out) {
+    out->n = input_mat->k;
+    out->k = input_mat->n;
+    for (int64_t row = 0; row < input_mat->n; row++) {
+        for (uint64_t col = 0; col < input_mat->k; col++) {
+            out->mat[row][col] = input_mat->mat[col][row];
         }
     }
 }
@@ -24,92 +25,92 @@ void add_vectors(uint64_t k, char* first, char* second, char* output_vec) {
     }
 }
 
-void id_matrix(uint64_t n, char** output_mat) {
+void id_matrix(uint64_t n, matrix* output_mat) {
     for (uint64_t x = 0; x < n; x++) {
-         output_mat[x][x] = 1;
+         output_mat->mat[x][x] = 1;
     }
 }
 
-void
-multiply(
-    uint64_t k1,
-    uint64_t n1,
-    char** mat1,
-    uint64_t k2,
-    uint64_t n2,
-    char** mat2,
-    char** output_mat)
-{
-    if (n1 != k2) {
+void multiply(matrix* mat1, matrix* mat2, matrix* output_mat) {
+    if (mat1->n != mat2->k) {
         perror("Error: wrong given dimensions!");
         exit(1);
     }
-    char** mat2_T = alloc_matrix(n2, k2);
-    transpose(k2, n2, mat2, mat2_T);
-    for (uint64_t row = 0; row < k1; row++) {
-        for (uint64_t col2 = 0; col2 < n2; col2++) {
-            char res = dot_product(k2, mat1[row], mat2_T[col2]);
-            output_mat[row][col2] = res;
+    matrix* mat2_T = alloc_matrix(mat2->n, mat2->k);
+    transpose(mat2, mat2_T);
+    for (uint64_t row = 0; row < mat1->k; row++) {
+        for (uint64_t col2 = 0; col2 < mat2->n; col2++) {
+            char res = dot_product(mat2->k, mat1->mat[row], mat2_T->mat[col2]);
+            output_mat->mat[row][col2] = res;
         }
     }
-    dealloc_matrix(n2, k2, mat2_T);
+    dealloc_matrix(mat2_T);
 }
 
 void
 swap_columns(
-    uint64_t k,
-    uint64_t n,
+    matrix* input_mat,
     uint64_t first,
     uint64_t second,
-    char** mat,
-    char** output_mat)
+    matrix* output_mat)
 {
-    copy_matrix(k, n, mat, output_mat);
-    for (uint64_t row = 0; row < k; row++) {
-        output_mat[row][second] = mat[row][first];
-        output_mat[row][first] = mat[row][second];
+    copy_matrix(input_mat, output_mat);
+    for (uint64_t row = 0; row < input_mat->k; row++) {
+        output_mat->mat[row][second] = input_mat->mat[row][first];
+        output_mat->mat[row][first] = input_mat->mat[row][second];
     }
 }
 
+void
+swap_rows(
+    matrix* input_mat,
+    uint64_t first,
+    uint64_t second,
+    matrix* output_mat)
+{
+    copy_matrix(input_mat, output_mat);
+    char* tmp = malloc(input_mat->n * sizeof(char));
+    memcpy(tmp, output_mat->mat[second], input_mat->n);
+    memcpy(output_mat->mat[second], input_mat->mat[first], input_mat->n);
+    memcpy(input_mat->mat[first], output_mat->mat[second], input_mat->n);
+}
 
 int
 gaussian_elimination(
-        uint64_t k,
-        uint64_t n,
-        char** mat,
-        char** output_mat,
-        uint64_t* permutations)
+    matrix* input_mat,
+    matrix* output_mat,
+    uint64_t* permutations)
 {
-    copy_matrix(k, n, mat, output_mat);
+    copy_matrix(input_mat, output_mat);
     uint64_t perm_idx = 0;
-    for (uint64_t row = 0; row < k; row++) {
+    uint64_t null_rows = 0;
+    for (uint64_t row = 0; row < input_mat->k; row++) {
         uint64_t prev = row;
         uint64_t cur = prev;
         uint64_t i;
-        for (i = row; i < n; i++) {
-            if (output_mat[row][i] == 1)
+        for (i = row; i < input_mat->n; i++) {
+            if (output_mat->mat[row][i] == 1)
                 break;
-            if (i == n - 1) {
-                perror("Given matrix does not have full rank");
-                return 1;
+            if (i == input_mat->n - 1) {
+                null_rows++;
             }
         }
         cur = i;
 
         if (cur != prev) {
-            char** tmp_mat = alloc_matrix(k, n);
-            swap_columns(k, n, cur, prev, output_mat, tmp_mat);
-            copy_matrix(k, n, tmp_mat, output_mat);
-            dealloc_matrix(k, n, tmp_mat);
+            matrix* tmp_mat = alloc_matrix(input_mat->k, input_mat->n);
+            swap_columns(output_mat, cur, prev, tmp_mat);
+            copy_matrix(tmp_mat, output_mat);
+            dealloc_matrix(tmp_mat);
         }
 
-        for (uint64_t work_row = row + 1; work_row < k; work_row++) {
-            if (output_mat[work_row][prev]) {
+        for (uint64_t work_row = row + 1; work_row < output_mat->k; work_row++) {
+            if (output_mat->mat[work_row][prev]) {
                 add_vectors(
-                        n,
-                        output_mat[row],
-                        output_mat[work_row],
-                        output_mat[work_row]
+                        output_mat->n,
+                        output_mat->mat[row],
+                        output_mat->mat[work_row],
+                        output_mat->mat[work_row]
                 );
             }
         }
@@ -120,14 +121,14 @@ gaussian_elimination(
     }
 
     // Back substitution
-    for (int64_t row = k - 1; row >= 0; row--) {
+    for (int64_t row = output_mat->k - 1; row >= 0; row--) {
         for (int64_t cur = row - 1; cur >= 0; cur--) {
-            if (output_mat[cur][row]) {
+            if (output_mat->mat[cur][row]) {
                 add_vectors(
-                        n,
-                        output_mat[row],
-                        output_mat[cur],
-                        output_mat[cur]
+                        output_mat->n,
+                        output_mat->mat[row],
+                        output_mat->mat[cur],
+                        output_mat->mat[cur]
                 );
             }
         }
@@ -137,67 +138,53 @@ gaussian_elimination(
 
 void
 get_submatrix(
-    uint64_t k,
-    uint64_t n,
+    matrix* input_mat,
     uint64_t start_row,
     uint64_t end_row,
     uint64_t start_col,
     uint64_t end_col,
-    char** mat,
-    char** output_mat)
+    matrix* output_mat)
 {
     for (uint64_t row = start_row; row < end_row; row++) {
         for (uint64_t col = start_col; col < end_col; col++) {
-            output_mat[row - start_row][col - start_col] = mat[row][col];
+            output_mat->mat[row - start_row][col - start_col] =
+                input_mat->mat[row][col];
         }
     }
 }
 
-void
-concat_matrices_h(
-    uint64_t k,
-    uint64_t n1,
-    uint64_t n2,
-    char** mat1,
-    char** mat2,
-    char** output_mat)
-{
-    for (uint64_t row = 0; row < k; row++) {
-        memcpy(output_mat[row], mat1[row], n1);
-        memcpy(output_mat[row] + n1, mat2[row], n2);
+void concat_matrices_h(matrix* left, matrix* right, matrix* output) {
+    for (uint64_t row = 0; row < right->k; row++) {
+        memcpy(output->mat[row], left->mat[row], right->n);
+        memcpy(output->mat[row] + right->n, right->mat[row], left->n);
     }
 }
 
-void
-concat_matrices_v(
-    uint64_t n,
-    uint64_t k1,
-    uint64_t k2,
-    char** mat1,
-    char** mat2,
-    char** output_mat)
-{
-    for (uint64_t row = 0; row < k1; row++) {
-        memcpy(output_mat[row], mat1[row], n);
+void concat_matrices_v(matrix* upper, matrix* lower, matrix* output) {
+    for (uint64_t row = 0; row < upper->k; row++) {
+        memcpy(output->mat[row], upper->mat[row], upper->n);
     }
-    for (uint64_t row = k1; row < k1 + k2; row++) {
-        memcpy(output_mat[row], mat1[row - k1], n);
+    for (uint64_t row = upper->k; row < upper->k + lower->k; row++) {
+        memcpy(output->mat[row], upper->mat[row - upper->k], upper->n);
     }
 }
 
-int build_check_matrix(uint64_t k, uint64_t n, char** mat, char** H) {
-    uint64_t* perms = (uint64_t*) malloc(2 * n * sizeof(uint64_t));
-    char** G = alloc_matrix(k, n);
-    gaussian_elimination(k, n, mat, G, perms);
-    print_matrix(k, n, G);
+int build_check_matrix(matrix* input_mat, matrix* H) {
+    uint64_t n = input_mat->n;
+    uint64_t k = input_mat->k;
+    uint64_t* perms = (uint64_t*) malloc(2 * input_mat->n * sizeof(uint64_t));
+    matrix* G = alloc_matrix(k, n);
+    gaussian_elimination(input_mat, G, perms);
+    print_matrix(G);
     // Assuming that left part of output_mat is k*k identity matrix
-    char** A = alloc_matrix(k, n - k);
-    get_submatrix(k, n, 0, k, k, n, G, A);
-    char** A_T = alloc_matrix(n - k, k);
-    transpose(k, n - k, A, A_T);
-    char** I = alloc_matrix(n - k, n - k);
+    matrix* A = alloc_matrix(k, n - k);
+    get_submatrix(G, 0, k, k, n, A);
+    print_matrix(A);
+    matrix* A_T = alloc_matrix(n - k, k);
+    transpose(A, A_T);
+    matrix* I = alloc_matrix(n - k, n - k);
     id_matrix(n - k, I);
-    concat_matrices_h(n - k, k, n - k, A_T, I, H);
+    concat_matrices_h(A_T, I, H);
 
     return 0;
 }
