@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "util.h"
 
 #undef DEBUG
@@ -37,9 +38,9 @@ char** parse_matrix(FILE* input_stream, int* k, int* n) {
     return matrix;
 }
 
-void print_matrix(int k, int n, char** mat) {
+void print_matrix(uint64_t k, uint64_t n, char** mat) {
     printf("--------\n");
-    printf("k = %d, n = %d\n", k, n);
+    printf("k = %lu, n = %lu\n", k, n);
     for (uint64_t row = 0; row < k; row++) {
         for (uint64_t col = 0; col < n; col++) {
             printf("%d ", mat[row][col]);
@@ -57,10 +58,16 @@ char** alloc_matrix(uint64_t k, uint64_t n) {
     return matrix;
 }
 
-void dealloc_matrix(int k, int n, char** mat) {
+void dealloc_matrix(uint64_t k, uint64_t n, char** mat) {
     for (uint64_t row = 0; row < k; row++) {
         free(mat[row]);
     }
     free(mat);
+}
+
+void copy_matrix(uint64_t k, uint64_t n, char** src, char** dest) {
+    for (uint64_t row = 0; row < k; row++) {
+        memcpy(dest[row], src[row], n);
+    }
 }
 
