@@ -53,3 +53,5 @@ void concat_matrices_v(matrix* upper, matrix* lower, matrix* output);
 
 int build_check_matrix(matrix* input_mat, matrix* H);
 
+void remove_column(matrix* input_mat, uint64_t column, matrix* output_mat);
+

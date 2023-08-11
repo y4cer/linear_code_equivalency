@@ -69,10 +69,8 @@ swap_rows(
     matrix* output_mat)
 {
     copy_matrix(input_mat, output_mat);
-    char* tmp = malloc(input_mat->n * sizeof(char));
-    memcpy(tmp, output_mat->mat[second], input_mat->n);
     memcpy(output_mat->mat[second], input_mat->mat[first], input_mat->n);
-    memcpy(input_mat->mat[first], output_mat->mat[second], input_mat->n);
+    memcpy(output_mat->mat[first], input_mat->mat[second], input_mat->n);
 }
 
 int
@@ -84,7 +82,7 @@ gaussian_elimination(
     copy_matrix(input_mat, output_mat);
     uint64_t perm_idx = 0;
     uint64_t null_rows = 0;
-    for (uint64_t row = 0; row < input_mat->k; row++) {
+    for (uint64_t row = 0; row < input_mat->k - null_rows; row++) {
         uint64_t prev = row;
         uint64_t cur = prev;
         uint64_t i;
@@ -92,7 +90,12 @@ gaussian_elimination(
             if (output_mat->mat[row][i] == 1)
                 break;
             if (i == input_mat->n - 1) {
+                matrix* tmp_mat = alloc_matrix(input_mat->k, input_mat->n);
+                swap_rows(output_mat, input_mat->k - null_rows - 1, row, tmp_mat);
+                copy_matrix(tmp_mat, output_mat);
+                dealloc_matrix(tmp_mat);
                 null_rows++;
+                break;
             }
         }
         cur = i;
@@ -121,7 +124,7 @@ gaussian_elimination(
     }
 
     // Back substitution
-    for (int64_t row = output_mat->k - 1; row >= 0; row--) {
+    for (int64_t row = output_mat->k - 1 - null_rows; row >= 0; row--) {
         for (int64_t cur = row - 1; cur >= 0; cur--) {
             if (output_mat->mat[cur][row]) {
                 add_vectors(
@@ -133,7 +136,7 @@ gaussian_elimination(
             }
         }
     }
-    return 0;
+    return null_rows;
 }
 
 void
@@ -155,8 +158,8 @@ get_submatrix(
 
 void concat_matrices_h(matrix* left, matrix* right, matrix* output) {
     for (uint64_t row = 0; row < right->k; row++) {
-        memcpy(output->mat[row], left->mat[row], right->n);
-        memcpy(output->mat[row] + right->n, right->mat[row], left->n);
+        memcpy(output->mat[row], left->mat[row], left->n);
+        memcpy(output->mat[row] + left->n, right->mat[row], right->k);
     }
 }
 
@@ -175,11 +178,9 @@ int build_check_matrix(matrix* input_mat, matrix* H) {
     uint64_t* perms = (uint64_t*) malloc(2 * input_mat->n * sizeof(uint64_t));
     matrix* G = alloc_matrix(k, n);
     gaussian_elimination(input_mat, G, perms);
-    print_matrix(G);
     // Assuming that left part of output_mat is k*k identity matrix
     matrix* A = alloc_matrix(k, n - k);
     get_submatrix(G, 0, k, k, n, A);
-    print_matrix(A);
     matrix* A_T = alloc_matrix(n - k, k);
     transpose(A, A_T);
     matrix* I = alloc_matrix(n - k, n - k);
@@ -187,5 +188,15 @@ int build_check_matrix(matrix* input_mat, matrix* H) {
     concat_matrices_h(A_T, I, H);
 
     return 0;
+}
+
+void remove_column(matrix* input_mat, uint64_t column, matrix* output_mat) {
+    for (uint64_t row = 0; row < input_mat->k; row++) {
+        for (uint64_t col = 0; col < input_mat->n; col++) {
+            if (col == column) continue;
+            uint64_t idx_remove = col > column;
+            output_mat->mat[row][col - idx_remove] = input_mat->mat[row][col];
+        }
+    }
 }
 
