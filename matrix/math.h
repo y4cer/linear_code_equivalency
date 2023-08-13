@@ -55,3 +55,17 @@ int build_check_matrix(matrix* input_mat, matrix* H);
 
 void remove_column(matrix* input_mat, uint64_t column, matrix* output_mat);
 
+void remove_row(matrix* input_mat, uint64_t row, matrix* output_mat);
+
+void
+remove_rows(
+        matrix* input_mat,
+        uint64_t* rows_to_remove,
+        matrix* output_mat);
+
+matrix* remove_null_rows(matrix* input_mat);
+
+int code_equivalence(matrix* G, matrix* G_);
+
+void add_matrices(matrix* first, matrix* second, matrix* output);
+

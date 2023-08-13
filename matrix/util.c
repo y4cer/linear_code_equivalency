@@ -66,6 +66,8 @@ void dealloc_matrix(matrix* mat) {
         free(mat->mat[row]);
     }
     free(mat->mat);
+    mat->k = 0;
+    mat->n = 0;
     free(mat);
 }
 
