@@ -12,11 +12,14 @@ char dot_product(uint64_t k, char* first, char* second);
 
 void id_matrix(uint64_t n, matrix* output_mat);
 
+/**
+  * Find matrices S and D such that SM = D
+  */
 int
 gaussian_elimination(
-    matrix* input_mat,
-    matrix* output_mat,
-    uint64_t* permutations
+    matrix* M,
+    matrix* D,
+    matrix* S
 );
 
 void add_vectors(uint64_t k, char* first, char* second, char* output_vec);
@@ -68,4 +71,6 @@ matrix* remove_null_rows(matrix* input_mat);
 int code_equivalence(matrix* G, matrix* G_);
 
 void add_matrices(matrix* first, matrix* second, matrix* output);
+
+matrix* all_linear_combinations(matrix* B);
 
