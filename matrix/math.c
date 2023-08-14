@@ -325,7 +325,6 @@ matrix* all_linear_combinations(matrix* B) {
             tmp >>= 1;
         }
     }
-    print_matrix(C);
     return C;
 }
 
@@ -336,8 +335,6 @@ int code_equivalence(matrix *G, matrix *G_) {
         remove_column(G, i, Gi);
         matrix* B = get_hull(Gi);
         matrix* C = all_linear_combinations(B);
-        print_matrix(C);
-        printf("# of all linear combinations: %lu\n", C->k);
         uint64_t* weight = calloc(B->n, sizeof(uint64_t));
         for (uint64_t row = 0; row < C->k; row++) {
             uint64_t sum = 0;

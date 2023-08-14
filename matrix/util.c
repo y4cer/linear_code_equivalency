@@ -20,12 +20,15 @@ matrix* parse_matrix(FILE* input_stream) {
         fgets(buffer, BUFF_SIZE, input_stream);
         sscanf(buffer, " %lu %lu%*c", &result->k, &result->n);
     }
-
     result->mat = (char**) malloc(result->k * sizeof(char*));
 
     for (uint64_t row = 0; row < result->k; row++) {
-        result->mat[row] = (char*) malloc(result->n * sizeof(char));
-        char* buf = (char*) malloc(result->n * sizeof(char));
+        printf("entering %lu\n", result->n * sizeof(char));
+        uint64_t kk = 1024;
+        result->mat[row] = (char*) malloc(kk);
+        printf("after first %lu\n", result->n * sizeof(char));
+        char* buf = (char*) malloc(kk);
+        printf("ASD\n");
         fgets(buf, BUFF_SIZE, input_stream);
         char* token = strtok(buf, " ");
         uint64_t col = 0;
@@ -34,6 +37,7 @@ matrix* parse_matrix(FILE* input_stream) {
             col++;
             token = strtok(NULL, " ");
         }
+        free(buf);
     }
     return result;
 }
