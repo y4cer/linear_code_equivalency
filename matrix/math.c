@@ -1,5 +1,7 @@
 #include "math.h"
 
+#define DEBUG
+
 void transpose(matrix* input_mat, matrix* out) {
     out->n = input_mat->k;
     out->k = input_mat->n;
@@ -19,7 +21,13 @@ uint8_t dot_product(uint64_t k, uint8_t* first, uint8_t* second) {
     return result;
 }
 
-void add_vectors(uint64_t k, uint8_t* first, uint8_t* second, uint8_t* output_vec) {
+void
+add_vectors(
+        uint64_t k,
+        uint8_t* first,
+        uint8_t* second,
+        uint8_t* output_vec)
+{
     for (uint64_t i = 0; i < k; i++) {
         output_vec[i] = (first[i] + second[i]) % 2;
     }
@@ -344,8 +352,11 @@ matrix* get_code_spectre(matrix* G) {
     for (uint64_t i = 0; i < G->n; i++) {
         matrix* Gi = alloc_matrix(G->k, G->n - 1);
         remove_column(G, i, Gi);
+        print_matrix(Gi, "G%lu", i);
         matrix* B = get_hull(Gi);
+        /* print_matrix(B); */
         matrix* C = all_linear_combinations(B);
+        /* print_matrix(C); */
         for (uint64_t row = 0; row < C->k; row++) {
             uint64_t sum = 0;
             for (uint64_t col = 0; col < C->n; col++) {
@@ -392,8 +403,8 @@ int code_equivalence(matrix *G, matrix *G_) {
     matrix* spectre_1 = get_code_spectre(G);
     matrix* spectre_2 = get_code_spectre(G_);
 
-    /* print_matrix(spectre_1); */
-    /* print_matrix(spectre_2); */
+    print_matrix(spectre_1, "spectre 1");
+    print_matrix(spectre_2, "spectre 2");
 
     // Codes are not equivalent for sure if their generating matrices are not
     // equal size
@@ -410,16 +421,24 @@ int code_equivalence(matrix *G, matrix *G_) {
 
     for (uint64_t sp1 = 0; sp1 < spectre_1->k; sp1++) {
         int64_t res;
-        if ((res = find(to_use + 1, spectre_1->n, spectre_1->mat[sp1], permutations)) == -1) {
+        if ((res = find(to_use + 1,
+                        spectre_1->n,
+                        spectre_1->mat[sp1],
+                        permutations)) == -1) {
             map[sp1] = ++to_use;
-            permutations[to_use] = calloc(2 * spectre_1->n + 1, sizeof(uint64_t));
+            permutations[to_use] = calloc(
+                    2 * spectre_1->n + 1,
+                    sizeof(uint64_t)
+            );
 
             // Copy first part of the permutation
             for (uint64_t i = 0; i < spectre_1->n; i++) {
                 permutations[to_use][i] = spectre_1->mat[sp1][i];
             }
             for (uint64_t sp2 = 0; sp2 < spectre_2->k; sp2++) {
-                if (equal_vectors(spectre_1->n, spectre_1->mat[sp1], spectre_2->mat[sp2])) {
+                if (equal_vectors(spectre_1->n,
+                            spectre_1->mat[sp1],
+                            spectre_2->mat[sp2])) {
                     uint64_t* idx = &permutations[map[sp1]][spectre_1->n];
                     permutations[map[sp1]][spectre_1->n + ++(*idx)] = sp2;
                 }
@@ -429,6 +448,7 @@ int code_equivalence(matrix *G, matrix *G_) {
         }
     }
 
+#ifdef  DEBUG
     for (uint64_t row = 0; row < to_use + 1; row++) {
         for (uint64_t col = 0; col < spectre_1->n * 2 + 1; col++) {
             printf("%lu ", permutations[row][col]);
@@ -439,6 +459,7 @@ int code_equivalence(matrix *G, matrix *G_) {
         }
         printf("\n");
     }
+#endif
 
     dealloc_matrix(spectre_1);
     dealloc_matrix(spectre_2);
@@ -468,5 +489,24 @@ matrix* get_random_G(uint64_t k, uint64_t n) {
     dealloc_matrix(G_r);
 
     return G;
+}
+
+void
+apply_random_column_permutations(
+        uint64_t permutations,
+        matrix* input,
+        matrix* output)
+{
+    uint64_t n = input->n;
+    matrix* tmp = alloc_matrix(input->k, input->n);
+    copy_matrix(input, output);
+    for (uint64_t i = 0; i < permutations; i++) {
+        uint64_t c1 = rand() % n;
+        uint64_t c2 = rand() % n;
+        if (c1 == c2) i--;
+        swap_columns(output, c1, c2, tmp);
+        copy_matrix(tmp, output);
+    }
+    dealloc_matrix(tmp);
 }
 

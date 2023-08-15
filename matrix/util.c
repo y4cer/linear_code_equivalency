@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include "util.h"
 
 #undef DEBUG
@@ -39,8 +40,12 @@ matrix* parse_matrix(FILE* input_stream) {
     return result;
 }
 
-void print_matrix(matrix* mat) {
-    printf("--------\n");
+void print_matrix(matrix* mat, const char* fmt,...) {
+    va_list args;
+    va_start(args, fmt);
+    char* buf = calloc(1024, sizeof(char));
+    vsnprintf(buf, sizeof(buf), fmt, args);
+    printf("---- %s ----\n", buf);
     printf("k = %lu, n = %lu\n", mat->k, mat->n);
     for (uint64_t row = 0; row < mat->k; row++) {
         for (uint64_t col = 0; col < mat->n; col++) {
@@ -48,7 +53,8 @@ void print_matrix(matrix* mat) {
         }
         printf("\n");
     }
-    printf("--------\n");
+    printf("------------\n");
+    free(buf);
 }
 
 matrix* alloc_matrix(uint64_t k, uint64_t n) {

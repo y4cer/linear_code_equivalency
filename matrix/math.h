@@ -25,7 +25,13 @@ gaussian_elimination(
     matrix* P
 );
 
-void add_vectors(uint64_t k, uint8_t* first, uint8_t* second, uint8_t* output_vec);
+void
+add_vectors(
+        uint64_t k,
+        uint8_t* first,
+        uint8_t* second,
+        uint8_t* output_vec
+);
 
 int equal_vectors(uint64_t k, uint8_t* first, uint8_t* second);
 
@@ -84,4 +90,11 @@ matrix* get_hull(matrix* G);
 matrix* get_code_spectre(matrix* G);
 
 matrix* get_random_G(uint64_t k, uint64_t n);
+
+void
+apply_random_column_permutations(
+        uint64_t permutations,
+        matrix* input,
+        matrix* output
+);
 

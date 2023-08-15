@@ -15,7 +15,7 @@ typedef struct {
 
 matrix* parse_matrix(FILE* input_stream);
 
-void print_matrix(matrix* mat);
+void print_matrix(matrix* mat, const char* fmt,...);
 
 matrix* alloc_matrix(uint64_t k, uint64_t n);
 
