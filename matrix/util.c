@@ -6,7 +6,7 @@
 matrix* parse_matrix(FILE* input_stream) {
 
     matrix* result = (matrix*) malloc(sizeof(matrix));
-    char buffer [BUFF_SIZE];
+    uint8_t buffer [BUFF_SIZE];
 
     if (input_stream == stdin) {
         printf("Enter matrix dimensions (rows, columns): ");
@@ -20,17 +20,14 @@ matrix* parse_matrix(FILE* input_stream) {
         fgets(buffer, BUFF_SIZE, input_stream);
         sscanf(buffer, " %lu %lu%*c", &result->k, &result->n);
     }
-    result->mat = (char**) malloc(result->k * sizeof(char*));
+    result->mat = (uint8_t**) malloc(result->k * sizeof(uint8_t*));
 
     for (uint64_t row = 0; row < result->k; row++) {
-        printf("entering %lu\n", result->n * sizeof(char));
         uint64_t kk = 1024;
-        result->mat[row] = (char*) malloc(kk);
-        printf("after first %lu\n", result->n * sizeof(char));
-        char* buf = (char*) malloc(kk);
-        printf("ASD\n");
+        result->mat[row] = (uint8_t*) malloc(kk);
+        uint8_t* buf = (uint8_t*) malloc(kk);
         fgets(buf, BUFF_SIZE, input_stream);
-        char* token = strtok(buf, " ");
+        uint8_t* token = strtok(buf, " ");
         uint64_t col = 0;
         while (token) {
             result->mat[row][col] = atoi(token);
@@ -56,11 +53,11 @@ void print_matrix(matrix* mat) {
 
 matrix* alloc_matrix(uint64_t k, uint64_t n) {
     matrix* result = malloc(sizeof(matrix));
-    result->mat = (char**) malloc(k * sizeof(char*));
+    result->mat = (uint8_t**) malloc(k * sizeof(uint8_t*));
     result->n = n;
     result->k = k;
     for (uint64_t row = 0; row < k; row++) {
-        result->mat[row] = (char*) calloc(n, sizeof(char));
+        result->mat[row] = (uint8_t*) calloc(n, sizeof(uint8_t));
     }
     return result;
 }

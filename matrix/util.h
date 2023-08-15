@@ -10,7 +10,7 @@
 typedef struct {
     uint64_t k;
     uint64_t n;
-    char** mat;
+    uint8_t** mat;
 } matrix;
 
 matrix* parse_matrix(FILE* input_stream);

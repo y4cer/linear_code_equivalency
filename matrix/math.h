@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <time.h>
 
 #include "util.h"
 
@@ -8,21 +9,25 @@ void multiply(matrix* mat1, matrix* mat2, matrix* output_mat);
 
 void transpose(matrix* input_mat, matrix* out);
 
-char dot_product(uint64_t k, char* first, char* second);
+uint8_t dot_product(uint64_t k, uint8_t* first, uint8_t* second);
 
 void id_matrix(uint64_t n, matrix* output_mat);
 
 /**
-  * Find matrices S and D such that SM = D
+  * Find matrices S and D such that SM = D, also returns P, the permutation
+  * matrix
   */
 int
 gaussian_elimination(
     matrix* M,
     matrix* D,
-    matrix* S
+    matrix* S,
+    matrix* P
 );
 
-void add_vectors(uint64_t k, char* first, char* second, char* output_vec);
+void add_vectors(uint64_t k, uint8_t* first, uint8_t* second, uint8_t* output_vec);
+
+int equal_vectors(uint64_t k, uint8_t* first, uint8_t* second);
 
 void
 swap_columns(
@@ -73,4 +78,10 @@ int code_equivalence(matrix* G, matrix* G_);
 void add_matrices(matrix* first, matrix* second, matrix* output);
 
 matrix* all_linear_combinations(matrix* B);
+
+matrix* get_hull(matrix* G);
+
+matrix* get_code_spectre(matrix* G);
+
+matrix* get_random_G(uint64_t k, uint64_t n);
 
